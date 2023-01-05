@@ -1,19 +1,26 @@
-//Dados do cliente cadastrado
-export type TClient = {
+//Exercicio 1
+//Refatore o type da entidade product no types.ts
+export enum ProductCategory {
+    GREENERIES = "Verduras",
+    FRUITS = "Fruta"
+}
+
+// user
+export type TUser = {
     id: string
     email: string
     password: string
 }
 
-//Dados do produto cadastrado
+// product
 export type TProduct = {
     id: string
     name: string
     price: number
-    category: string
+    category: ProductCategory
 }
 
-//Dados da compra que será realizada pelo cliente
+// purchase
 export type TPurchase = {
     userId: string
     productId: string

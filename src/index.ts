@@ -72,8 +72,16 @@ app.listen(3003, () => {
 //User
 //Requisição GET com query
 app.get("/users", (req: Request, res: Response)=>{
+    try {
         res.status(200).send(users)
-    })
+    } catch (error: any) {
+        console.log(error)
+        if(res.statusCode === 200){
+            res.status(500)
+        }
+        res.send(error.message)
+    } 
+    });
     
     //Requisição GET com query
     app.get("/users/search", (req: Request, res: Response)=>{
@@ -87,45 +95,100 @@ app.get("/users", (req: Request, res: Response)=>{
     
     //Requisição POST com body
     app.post("/users",(req: Request, res: Response)=>{
-    
-        const id = req.body.id
-        const email = req.body.email
-        const password = req.body.password
-    
-        const newUser:TUser = {
-            id,
-            email,
-            password,
-        }
-    
-        users.push(newUser)
-    
-        res.status(201).send("Cadastro realizado com sucesso")
+        try {
+            const id = req.body.id
+            const email = req.body.email
+            const password = req.body.password
+
+            const findId = users.find((users) => users.id === id)
+            if (findId){
+                res.status(400)
+                throw new Error("ID indisponivel")
+            }
+
+            const findEmail = users.find((users) => users.email === email)
+            if (findEmail){
+                res.status(400)
+                throw new Error("EMAIL indisponivel")
+            }
+
+            const newUser:TUser = {
+                id,
+                email,
+                password,
+            }
+        
+            users.push(newUser)
+        
+            res.status(201).send("Cadastro realizado com sucesso")
+
+        } catch (error: any) {
+            console.log(error)
+            if(res.statusCode === 200){
+                res.status(500)
+            }
+            res.send(error.message)
+        } 
     })
+
+
+
 /*=================================================================*/
 //Product
 //Requisição GET com query
-        app.get("/products", (req: Request, res: Response)=>{
-        res.status(200).send(products)
+    app.get("/products", (req: Request, res: Response)=>{
+        try {
+            res.status(200).send(products)
+        } catch (error: any) {
+            console.log(error);
+
+            if (res.statusCode === 200){
+                res.status(500);
+            }
+            res.send(error.message);
+        }
     })
     
 //Requisição GET com query
     app.get("/products/search", (req: Request, res: Response)=>{
-        const q = req.query.q as string
-    
-        const productsFilter = products.filter(
-        (products)=>products.id.toLowerCase().includes(q.toLowerCase())
-        )
-        res.status(200).send(productsFilter)
-    })
-    
+        let productFilter;
+        try {
+            const q = req.query.q as string
+            if (q.length <= 1){
+                res.status(400)
+                throw new Error("query params deve possuir pelo menos um caractere")
+            }
+            productFilter = products.filter((product) => {
+                return product.name.toLowerCase().includes(q.toLowerCase())
+            })
+                res.status(200).send(productFilter)
+            } catch (error: any) {
+                console.log(error)
+        
+            if (res.statusCode == 200) {
+                    res.status(500)
+                }
+                res.send(error.message)
+            }
+        })
+        
+        
+
     //Requisição POST com body
-    app.post("/products",(req: Request, res: Response)=>{
     
+    app.post("/products",(req: Request, res: Response)=>{
+    try {
         const id = req.body.id
         const name = req.body.name
         const price = req.body.price
         const category = req.body.category
+
+        const findId = products.find((product) => product.id === id);
+
+        if (findId){
+            res.status(400);
+            throw new Error("ID indisponivel");
+        }
 
         const newProduct:TProduct = {
             id,
@@ -137,6 +200,15 @@ app.get("/users", (req: Request, res: Response)=>{
         products.push(newProduct)
 
         res.status(201).send("Produto cadastrado com sucesso")
+    } catch (error) {
+        console.log(error)
+
+        if (res.statusCode == 200) {
+            res.status(500)
+        }
+        res.send(error.message)
+    }
+        
         })
 
 /*=================================================================*/
@@ -157,8 +229,8 @@ app.get("/users", (req: Request, res: Response)=>{
         })
 
 //Requisição POST com body
-        app.post("/purchases",(req: Request, res: Response)=>{
-
+    app.post("/purchases",(req: Request, res: Response)=>{
+    try {
         const userId = req.body.userId
         const productId = req.body.productId
         const quantity = req.body.quantity
@@ -173,34 +245,88 @@ app.get("/users", (req: Request, res: Response)=>{
 
         purchases.push(newPurchase)
         res.status(201).send("Compra realizada com sucesso")
+    
+        } catch (error:any) {
+        console.log(error)
+
+        if (res.statusCode == 200) {
+            res.status(500)
+        }
+        res.send(error.message)
+    }
+        
         })
 
 //=================================================================================
 
 // 1) validar um produto por id
 app.get("/products/:id", (req: Request, res: Response) => {
+    try {
     const id = req.params.id
+
+    const findProduct = products.find((products) => products.id === id)
+    if(!findProduct){
+        res.status(400)
+        throw new Error("Produto não encontrado")
+    }
 
     const result = products.find((products) => products.id === id)
     res.status(200).send(result)
+    console.log("Produto encontrado")
 
+     } catch (error:any) {
+        console.log(error)
+
+        if (res.statusCode == 200) {
+            res.status(500)
+        }
+        res.send(error.message)
+    }
 })
 
 //validar aos itens por usuario id
 app.get("/users/:id/purchases", (req: Request, res: Response) => {
-    const id = req.params.id
+    try {
+        const id = req.params.id
 
-    const result = purchases.filter((purchase) => purchase.userId === id)
-    res.status(200).send(result)
+        const findUser = purchases.filter((purchase) => purchase.userId === id)
+        if(!findUser){
+            res.status(404) //res.statusCode = 404
+            throw new Error("Compra não encontrada. Verifique a 'id'.")
+        }
+        const result = purchases.filter((purchase) => purchase.userId === id)
+        res.status(200).send(result)
+        console.log("Array de compras do user procurado")
+    
+    } catch (error: any) {
+        console.log(error)
+
+        if (res.statusCode == 200) {
+            res.status(500)
+        }
+        res.send(error.message)
+    }
+    
+    
 })
+
+
+
+
 
 //=================================================================================
 // 2) deletar um item do array
 
 //======delete de usuario======
 app.delete("/users/:id", (req: Request, res: Response) => {
+    try {
     const id = req.params.id
 
+    const findUser = users.find((users) => users.id === id)
+    if (!findUser){
+        res.status(400)
+        throw new Error("Usuario não encontrado")
+    }
     //encontrar o indice do item a ser removido
     const indexToRemove = users.findIndex((user) => user.id === id)
     
@@ -209,23 +335,55 @@ app.delete("/users/:id", (req: Request, res: Response) => {
         users.splice(indexToRemove, 1)
     }
 
-    res.status(200).send("User apagado com sucesso")
+    res.status(200).send("Usuário apagado com sucesso")
+   
+    } catch (error: any) {
+    console.log(error)
+
+    if (res.statusCode == 200) {
+        res.status(500)
+    }
+    res.send(error.message)
+}
+   
+   
 })
 
 //======delete de produto=======
 app.delete("/products/:id", (req: Request, res: Response) => {
-    const id = req.params.id
-
-    //encontrar o indice do item a ser removido
-    const indexToRemove = products.findIndex((product) => product.id === id)
+    try {
+        const id = req.params.id
     
-    //só deleter caso o indice seja válido (ou seja, encontrou o item)
-    if (indexToRemove >= 0){
-        products.splice(indexToRemove, 1)
+        const findProduct = products.find((products) => products.id === id)
+        if (!findProduct){
+            res.status(400)
+            throw new Error("Produto não encontrado")
+        }
+        //encontrar o indice do item a ser removido
+        const indexToRemove = products.findIndex((products) => products.id === id)
+        
+        //só deleter caso o indice seja válido (ou seja, encontrou o item)
+        if (indexToRemove >= 0){
+            products.splice(indexToRemove, 1)
+        }
+    
+        res.status(200).send("Produto apagado com sucesso")
+       
+    } catch (error: any) {
+        console.log(error)
+    
+        if (res.statusCode == 200) {
+            res.status(500)
+        }
+        res.send(error.message)
     }
+       
+       
+    })    
 
-    res.status(200).send("Produto apagado com sucesso")
-})
+
+
+
 
 //===================================================================================
 
@@ -234,22 +392,40 @@ app.delete("/products/:id", (req: Request, res: Response) => {
 //======editando um user======
 
 app.put("/users/:id", (req: Request, res: Response) => {
-    const id = req.params.id
+    try {
+        const id = req.params.id
 
-    const newId = req.body.id as string | undefined
-    const newEmail = req.body.email as string | undefined
-    const newPassword = req.body.password as string | undefined
+        const newId = req.body.id as string | undefined
+        const newEmail = req.body.email as string | undefined
+        const newPassword = req.body.password as string | undefined
+    
+    
+        const user = users.find((user) => user.id === id)
+    
+        if (user) {
+            user.id = newId || user.id
+            user.email = newEmail || user.email
+            user.password = newPassword || user.password
+        }
+    
+        res.status(200).send("Cadastro atualizado com sucesso")
+    
+    } catch (error: any) {
+        console.log(error)
 
-    const user = users.find((user) => user.id === id)
-
-    if (user) {
-        user.id = newId || user.id
-        user.email = newEmail || user.email
-        user.password = newPassword || user.password
+        if (res.statusCode == 200) {
+            res.status(500)
+        }
+        res.send(error.message)
     }
-
-    res.status(200).send("Cadastro atualizado com sucesso")
+    
+  
 })
+
+
+
+
+
 
 //======editando um produto======
 

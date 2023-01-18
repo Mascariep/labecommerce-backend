@@ -125,3 +125,49 @@ SELECT * FROM products
 WHERE price > 1.0
 	AND price < 5.0
 ORDER BY price ASC;
+
+----------------------------------------------------------------
+--RELAÇÕES SQL
+--EXERCÍCIO 1
+
+--CRIAR A TABELA PURCHASES
+CREATE TABLE purchases (
+    id TEXT PRIMARY KEY UNIQUE NOT NULL,
+    total_price REAL UNIQUE NOT NULL,
+    paid INTEGER NOT NULL,
+    delivered_at TEXT,
+    buyer_id TEXT NOT NULL, 
+    FOREIGN KEY (buyer_id) REFERENCES users(id)
+);
+
+SELECT * FROM purchases; -- VISUALIZAR
+DROP TABLE purchases; --DELETAR
+
+--EXERCÍCIO 2
+-- POPULANDO A TABELA PURCHASES
+-- a) Crie dois pedidos para cada usuário cadastrado
+-- No mínimo 4 no total (ou seja, pelo menos 2 usuários diferentes), devem iniciar com a data de entrega nula.
+INSERT INTO purchases (id, total_price, paid, delivered_at, buyer_id)
+VALUES
+    ("c001", 15.0, "0", "null", "Edipo"),
+    ("c002", 10.0, "0", "null", "Pamela"),
+    ("c003", 25.0, "0", "null", "Aurora"),
+    ("c004", 12.0, "0", "null", "Edipo"),
+    ("c005", 9.0, "0", "null", "Pamela"),
+    ("c006", 30.0, "0", "null", "Aurora");
+
+-- b) Edite o status da data de entrega de um pedido
+UPDATE purchases SET delivered_at = DATETIME() WHERE id = "c001";
+
+--EXERCÍCIO 3
+-- Crie a query de consulta utilizando junção para simular um endpoint de histórico de compras de um determinado usuário.
+-- Mocke um valor para a id do comprador, ela deve ser uma das que foram utilizadas no exercício 2.
+SELECT * FROM users
+INNER JOIN purchases
+ON purchases.buyer_id = users.id;
+
+Select * From purchases
+WHERE purchases.id = "c003";
+
+--Deletar item
+DELETE FROM purchases WHERE id = "c007";

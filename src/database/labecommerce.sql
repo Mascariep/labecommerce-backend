@@ -171,3 +171,61 @@ WHERE purchases.id = "c003";
 
 --Deletar item
 DELETE FROM purchases WHERE id = "c007";
+
+---------------------------------------------------------------------------------
+
+-- EXERCICÍO 1
+    -- Criação da tabela de relações
+    -- nome da tabela: purchases_products
+
+CREATE TABLE IF NOT EXISTS purchases_products (
+    purchase_id TEXT NOT NULL,
+    product_id TEXT NOT NULL,
+    quantity INTEGER NOT NULL,
+    FOREIGN KEY (purchase_id) REFERENCES purchases (id)
+	FOREIGN KEY (product_id) REFERENCES products (id)
+);
+
+    -- DELETAR A TABELA
+DROP TABLE purchases_products;
+
+-- EXERCÍCIO 2
+    -- Com a tabela de relações criada podemos finalmente realizar compras no banco de dados!
+    -- Inserção dos dados
+        -- Popule sua tabela purchases_products simulando 3 compras de clientes.
+INSERT INTO purchases_products (purchase_id, product_id, quantity)
+VALUES
+    ("c001", "01", 3),
+    ("c002", "02", 10),
+    ("c003", "03", 5);
+
+    -- VISUALIZAR A TABELA
+SELECT * FROM purchases_products;
+
+    -- Consulta com junção INNER JOIN
+        --Mostre em uma query todas as colunas das tabelas relacionadas (purchases_products, purchases e products).
+
+SELECT * FROM purchases
+LEFT JOIN purchases_products -- tabela de relação
+ON purchases_products.purchase_id = purchases.id
+INNER JOIN products
+ON products.id = purchases_products.product_id;
+
+SELECT 
+    purchases.id AS purchaseId, 
+    purchases.total_price AS totalPrice,
+    purchases.paid,
+    purchases.delivered_at,
+    purchases.buyer_id AS buyerId,
+    products.id AS productId,
+    products.name AS productName,
+    products.price,
+    products.category,
+    purchases_products.purchase_id AS purchaseId,
+    purchases_products.product_id,
+    purchases_products.quantity
+ FROM purchases
+LEFT JOIN purchases_products
+ON purchases_products.purchase_id = purchases.id
+INNER JOIN products
+ON products.id = purchases_products.product_id;

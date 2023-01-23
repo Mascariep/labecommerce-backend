@@ -3,8 +3,11 @@
 CREATE TABLE users (
     id TEXT PRIMARY KEY UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL
+    password TEXT NOT NULL,
+    createdAt TEXT DEFAULT(DATETIME('now', 'localtime')) NOT NULL
 );
+
+SELECT DATETIME("now", "localtime");
 
 --EXCLUINDO A TABELA--
 DROP TABLE users;
@@ -23,20 +26,22 @@ CREATE TABLE products (
     id TEXT PRIMARY KEY UNIQUE NOT NULL,
     name TEXT NOT NULL,
     price REAL NOT NULL,
-    category TEXT NOT NULL
+    category TEXT NOT NULL,
+    description TEXT NOT NULL,
+    imageUrl TEXT
 );
 
 --EXCLUINDO A TABELA--
 DROP TABLE products;
 
 --INSERINDO DADOS--
-INSERT INTO products (id, name, price, category)
+INSERT INTO products (id, name, price, category, description, imageUrl)
 VALUES
-    ("01", "goiaba", 5.00, "Fruta"),
-    ("02", "alface", 1.00, "Verduras"),
-    ("03", "manga", 5.00, "Fruta"),
-    ("04", "rucúla", 1.00, "Verduras"),
-    ("05", "uva", 3.00, "Fruta");
+    ("01", "goiaba", 5.00, "Fruta", "fruta fresca", ""),
+    ("02", "alface", 1.00, "Verduras", "verdura fresca", ""),
+    ("03", "manga", 5.00, "Fruta", "fruta fresca", ""),
+    ("04", "rucúla", 1.00, "Verduras", "verdura fresca", ""),
+    ("05", "uva", 3.00, "Fruta", "fruta fresca", "");
 
 -----------------------------------------------------
 -- EXERCÍCIO 1
@@ -133,11 +138,11 @@ ORDER BY price ASC;
 --CRIAR A TABELA PURCHASES
 CREATE TABLE purchases (
     id TEXT PRIMARY KEY UNIQUE NOT NULL,
-    total_price REAL UNIQUE NOT NULL,
+    total_price REAL NOT NULL,
     paid INTEGER NOT NULL,
-    delivered_at TEXT,
-    buyer_id TEXT NOT NULL, 
-    FOREIGN KEY (buyer_id) REFERENCES users(id)
+    userId TEXT NOT NULL,
+    createdAt TEXT DEFAULT(DATETIME('now', 'localtime')) NOT NULL,
+    FOREIGN KEY (userId) REFERENCES users(id)
 );
 
 SELECT * FROM purchases; -- VISUALIZAR
@@ -147,14 +152,14 @@ DROP TABLE purchases; --DELETAR
 -- POPULANDO A TABELA PURCHASES
 -- a) Crie dois pedidos para cada usuário cadastrado
 -- No mínimo 4 no total (ou seja, pelo menos 2 usuários diferentes), devem iniciar com a data de entrega nula.
-INSERT INTO purchases (id, total_price, paid, delivered_at, buyer_id)
+INSERT INTO purchases (id, total_price, paid, userId)
 VALUES
-    ("c001", 15.0, "0", "null", "Edipo"),
-    ("c002", 10.0, "0", "null", "Pamela"),
-    ("c003", 25.0, "0", "null", "Aurora"),
-    ("c004", 12.0, "0", "null", "Edipo"),
-    ("c005", 9.0, "0", "null", "Pamela"),
-    ("c006", 30.0, "0", "null", "Aurora");
+    ("c001", 15.0, "0", "Edipo"),
+    ("c002", 10.0, "0", "Pamela"),
+    ("c003", 25.0, "0", "Aurora"),
+    ("c004", 12.0, "0", "Edipo"),
+    ("c005", 9.0, "0", "Pamela"),
+    ("c006", 30.0, "0", "Aurora");
 
 -- b) Edite o status da data de entrega de um pedido
 UPDATE purchases SET delivered_at = DATETIME() WHERE id = "c001";
@@ -205,27 +210,27 @@ SELECT * FROM purchases_products;
     -- Consulta com junção INNER JOIN
         --Mostre em uma query todas as colunas das tabelas relacionadas (purchases_products, purchases e products).
 
-SELECT * FROM purchases
-LEFT JOIN purchases_products -- tabela de relação
-ON purchases_products.purchase_id = purchases.id
-INNER JOIN products
-ON products.id = purchases_products.product_id;
+-- SELECT * FROM purchases
+-- LEFT JOIN purchases_products -- tabela de relação
+-- ON purchases_products.purchase_id = purchases.id
+-- INNER JOIN products
+-- ON products.id = purchases_products.product_id;
 
-SELECT 
-    purchases.id AS purchaseId, 
-    purchases.total_price AS totalPrice,
-    purchases.paid,
-    purchases.delivered_at,
-    purchases.buyer_id AS buyerId,
-    products.id AS productId,
-    products.name AS productName,
-    products.price,
-    products.category,
-    purchases_products.purchase_id AS purchaseId,
-    purchases_products.product_id,
-    purchases_products.quantity
- FROM purchases
-LEFT JOIN purchases_products
-ON purchases_products.purchase_id = purchases.id
-INNER JOIN products
-ON products.id = purchases_products.product_id;
+-- SELECT 
+--     purchases.id AS purchaseId, 
+--     purchases.total_price AS totalPrice,
+--     purchases.paid,
+--     purchases.delivered_at,
+--     purchases.buyer_id AS buyerId,
+--     products.id AS productId,
+--     products.name AS productName,
+--     products.price,
+--     products.category,
+--     purchases_products.purchase_id AS purchaseId,
+--     purchases_products.product_id,
+--     purchases_products.quantity
+--  FROM purchases
+-- LEFT JOIN purchases_products
+-- ON purchases_products.purchase_id = purchases.id
+-- INNER JOIN products
+-- ON products.id = purchases_products.product_id;

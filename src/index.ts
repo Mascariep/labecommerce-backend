@@ -636,39 +636,31 @@ app.put("/products/:id", (req: Request, res: Response) => {
 // REFATORANDO O ENDPOINT CRIADO NO EXERCÍCIO ANTERIOR PARA QUE O RESULTADO TAMBÉM RETORNE A LISTA DE PRODUTOS REGISTRADOS NA COMPRA
 
 app.get("/purchases/:id", async (req: Request, res: Response) => {
-    const id = req.params.id
-    
-    try{
-        const buy = await db("purchases")
-        .innerJoin(
-            "users",
-            "purchases.id",
-            "=",
-            "users.id"
-        )
+    try {
+        const id_purchase = req.params.id
+        const boughtProducts = await db.select("purchases_products.product_id", "products.*")
+        .from("purchases_products")
+        .leftJoin("products", "purchases_products.product_id", "products.id")
+        .where({purchase_id: id_purchase})
 
-        const productsList = await db("purchases_products")
-        .innerJoin(
-            "products",
-            "purchases_products.product_id",
-            "=",
-            "products.id",
-        )
+        const result = await db.select("purchases.*", "users.email", "users.id")
+        .from("purchases")
+        .leftJoin("users", "purchases.userId", "users.id")
+        .where({"purchases.id": id_purchase})
 
-        res.status(200).send({
-            buy, productsList
-        })
+        res.status(200).send({"compra": result, "produtos": boughtProducts})
+
     } catch (error) {
         console.log(error)
-
+  
         if (req.statusCode === 200) {
             res.status(500)
         }
-
+  
         if (error instanceof Error) {
             res.send(error.message)
         } else {
             res.send("Erro inesperado")
         }
     }
-});
+  })

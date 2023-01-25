@@ -637,30 +637,51 @@ app.put("/products/:id", (req: Request, res: Response) => {
 
 app.get("/purchases/:id", async (req: Request, res: Response) => {
     try {
-        const id_purchase = req.params.id
-        const boughtProducts = await db.select("purchases_products.product_id", "products.*")
-        .from("purchases_products")
-        .leftJoin("products", "purchases_products.product_id", "products.id")
-        .where({purchase_id: id_purchase})
+        const id = req.params.id
+        const [purchase] = await db("purchases").where({id:id})
+        if(purchase){
+            
+            const [cart] = await db("purchases")
+            .select(
+                "purchases.id AS purchaseID",
+                "purchases.total_price AS totalPrice",
+                "purchases.createdAt AS createdAt",
+                "purchases.paid AS isPaid",
+                "users.id AS buyerID",
+                "users.email",
+                "users.name")
+            .innerJoin("users","purchases.userId","=","users.id")
 
-        const result = await db.select("purchases.*", "users.email", "users.id")
-        .from("purchases")
-        .leftJoin("users", "purchases.userId", "users.id")
-        .where({"purchases.id": id_purchase})
+            const purchaseProducts = await db("purchases_products")
+            .select("purchases_products.product_id AS id",
+                "products.name",
+                "products.price",
+                "products.description",
+                "products.imageUrl AS urlImage",
+                "purchases_products.quantity")
+            .innerJoin("products","products.id","=","purchases_products.product_id")
+            const result = {...cart,productsList:purchaseProducts}
+            
+            console.log(result)
+            res.status(200).send(result)
 
-        res.status(200).send({"compra": result, "produtos": boughtProducts})
-
+        }else{
+            res.status(404)
+            throw new Error("Compra não encontrada");
+            
+        }
+        
     } catch (error) {
         console.log(error)
-  
+
         if (req.statusCode === 200) {
             res.status(500)
         }
-  
+
         if (error instanceof Error) {
             res.send(error.message)
         } else {
             res.send("Erro inesperado")
         }
     }
-  })
+});

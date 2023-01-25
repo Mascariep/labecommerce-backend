@@ -153,14 +153,14 @@ DROP TABLE purchases; --DELETAR
 -- POPULANDO A TABELA PURCHASES
 -- a) Crie dois pedidos para cada usuário cadastrado
 -- No mínimo 4 no total (ou seja, pelo menos 2 usuários diferentes), devem iniciar com a data de entrega nula.
-INSERT INTO purchases (id, total_price, paid, userId)
+INSERT INTO purchases (id, total_price, paid, userId) -- No SQLite não aceita booleano (0 = false; 1 = true)
 VALUES
-    ("c001", 15.0, "true", "u001"),
-    ("c002", 10.0, "false", "u002"),
-    ("c003", 25.0, "true", "u003"),
-    ("c004", 12.0, "false", "u001"),
-    ("c005", 9.0, "true", "u002"),
-    ("c006", 30.0, "true", "u003");
+    ("c001", 15.0, "0", "u001"),
+    ("c002", 10.0, "1", "u002"),
+    ("c003", 25.0, "1", "u003"),
+    ("c004", 12.0, "0", "u001"),
+    ("c005", 9.0, "1", "u002"),
+    ("c006", 30.0, "1", "u003");
 
 
 -- b) Edite o status da data de entrega de um pedido
@@ -169,9 +169,9 @@ UPDATE purchases SET delivered_at = DATETIME() WHERE id = "c001";
 --EXERCÍCIO 3
 -- Crie a query de consulta utilizando junção para simular um endpoint de histórico de compras de um determinado usuário.
 -- Mocke um valor para a id do comprador, ela deve ser uma das que foram utilizadas no exercício 2.
-SELECT * FROM users
-INNER JOIN purchases
-ON purchases.buyer_id = users.id;
+-- SELECT * FROM users
+-- INNER JOIN purchases
+-- ON purchases.buyer_id = users.id;
 
 Select * From purchases
 WHERE purchases.id = "c003";

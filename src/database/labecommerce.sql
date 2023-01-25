@@ -127,6 +127,7 @@ LIMIT 20 OFFSET 0;
 -- Get All Products versão 2
 -- mocke um intervalo de preços, por exemplo entre 100.00 e 300.00
 -- retorna os produtos com preços dentro do intervalo mockado em ordem crescente
+
 -- SELECT * FROM products
 -- WHERE price > 1.0
 -- 	AND price < 5.0

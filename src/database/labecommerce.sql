@@ -2,6 +2,7 @@
 --CRIANDO A TABELA users--
 CREATE TABLE users (
     id TEXT PRIMARY KEY UNIQUE NOT NULL,
+    name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     createdAt TEXT DEFAULT(DATETIME('now', 'localtime')) NOT NULL
@@ -13,11 +14,11 @@ SELECT DATETIME("now", "localtime");
 DROP TABLE users;
 
 --INSERINDO DADOS--
-INSERT INTO users (id, email, password)
+INSERT INTO users (id, name, email, password)
 VALUES 
-	("Edipo", "teste1@teste.com", "123456"),
-	("Pamela", "teste2@teste.com", "654321"),
-    ("Aurora", "teste3@teste.com", "13579");
+	("u001", "Edipo", "teste1@teste.com", "123456"),
+	("u002", "Pamela", "teste2@teste.com", "654321"),
+    ("u003", "Aurora", "teste3@teste.com", "13579");
 
 ----------------------------------------------------------------
 
@@ -28,7 +29,7 @@ CREATE TABLE products (
     price REAL NOT NULL,
     category TEXT NOT NULL,
     description TEXT NOT NULL,
-    imageUrl TEXT
+    imageUrl TEXT NOT NULL
 );
 
 --EXCLUINDO A TABELA--
@@ -37,11 +38,11 @@ DROP TABLE products;
 --INSERINDO DADOS--
 INSERT INTO products (id, name, price, category, description, imageUrl)
 VALUES
-    ("01", "goiaba", 5.00, "Fruta", "fruta fresca", ""),
-    ("02", "alface", 1.00, "Verduras", "verdura fresca", ""),
-    ("03", "manga", 5.00, "Fruta", "fruta fresca", ""),
-    ("04", "rucúla", 1.00, "Verduras", "verdura fresca", ""),
-    ("05", "uva", 3.00, "Fruta", "fruta fresca", "");
+    ("01", "goiaba", 5.00, "Fruta", "fruta fresca", "https://picsum.photos/200"),
+    ("02", "alface", 1.00, "Verduras", "verdura fresca", "https://picsum.photos/200"),
+    ("03", "manga", 5.00, "Fruta", "fruta fresca", "https://picsum.photos/200"),
+    ("04", "rucúla", 1.00, "Verduras", "verdura fresca", "https://picsum.photos/200"),
+    ("05", "uva", 3.00, "Fruta", "fruta fresca", "https://picsum.photos/200");
 
 -----------------------------------------------------
 -- EXERCÍCIO 1
@@ -62,9 +63,9 @@ WHERE name = "manga";
 -- Create User
     -- mocke um novo usuário
     -- insere o item mockado na tabela users
-INSERT INTO users (id, email, password)
+INSERT INTO users (id, name, email, password)
 VALUES 
-    ("Antonio", "teste4@teste.com", "02468");
+    ("u004", "Antonio", "teste4@teste.com", "02468");
 
 -- Create Product
     -- mocke um novo produto
@@ -79,13 +80,13 @@ VALUES
     -- mocke uma id
     -- busca baseada no valor mockado
 SELECT * FROM users
-WHERE id = "Pamela";
+WHERE id = "u002";
 
 -- Delete User by id
     -- mocke uma id
     -- delete a linha baseada no valor mockado
 DELETE FROM users
-WHERE id = "Pamela";
+WHERE id = "u002";
 
 -- Delete Product by id
     -- mocke uma id
@@ -98,7 +99,7 @@ WHERE id = "04";
     -- edite a linha baseada nos valores mockados
 UPDATE users
 SET password = "123456"
-WHERE id = "Edipo";
+WHERE id = "u001";
 
 -- Edit Product by id
     -- mocke valores para editar um product
@@ -126,10 +127,10 @@ LIMIT 20 OFFSET 0;
 -- Get All Products versão 2
 -- mocke um intervalo de preços, por exemplo entre 100.00 e 300.00
 -- retorna os produtos com preços dentro do intervalo mockado em ordem crescente
-SELECT * FROM products
-WHERE price > 1.0
-	AND price < 5.0
-ORDER BY price ASC;
+-- SELECT * FROM products
+-- WHERE price > 1.0
+-- 	AND price < 5.0
+-- ORDER BY price ASC;
 
 ----------------------------------------------------------------
 --RELAÇÕES SQL
@@ -154,12 +155,13 @@ DROP TABLE purchases; --DELETAR
 -- No mínimo 4 no total (ou seja, pelo menos 2 usuários diferentes), devem iniciar com a data de entrega nula.
 INSERT INTO purchases (id, total_price, paid, userId)
 VALUES
-    ("c001", 15.0, "0", "Edipo"),
-    ("c002", 10.0, "0", "Pamela"),
-    ("c003", 25.0, "0", "Aurora"),
-    ("c004", 12.0, "0", "Edipo"),
-    ("c005", 9.0, "0", "Pamela"),
-    ("c006", 30.0, "0", "Aurora");
+    ("c001", 15.0, "true", "u001"),
+    ("c002", 10.0, "false", "u002"),
+    ("c003", 25.0, "true", "u003"),
+    ("c004", 12.0, "false", "u001"),
+    ("c005", 9.0, "true", "u002"),
+    ("c006", 30.0, "true", "u003");
+
 
 -- b) Edite o status da data de entrega de um pedido
 UPDATE purchases SET delivered_at = DATETIME() WHERE id = "c001";
@@ -210,11 +212,11 @@ SELECT * FROM purchases_products;
     -- Consulta com junção INNER JOIN
         --Mostre em uma query todas as colunas das tabelas relacionadas (purchases_products, purchases e products).
 
--- SELECT * FROM purchases
--- LEFT JOIN purchases_products -- tabela de relação
--- ON purchases_products.purchase_id = purchases.id
--- INNER JOIN products
--- ON products.id = purchases_products.product_id;
+SELECT * FROM purchases
+LEFT JOIN purchases_products -- tabela de relação
+ON purchases_products.purchase_id = purchases.id
+INNER JOIN products
+ON products.id = purchases_products.product_id;
 
 -- SELECT 
 --     purchases.id AS purchaseId, 

@@ -1,44 +1,87 @@
 import { TUser, TProduct, TPurchase, ProductCategory } from "./types"
 
-export const users: TUser[] = [{
-    id: "Edipo",
-    email: "teste1@teste.com",
-    password: "123456",
-},
-{
-    id: "Pamela",
-    email: "teste2@teste.com",
-    password: "654321",  
-}]
+export const users: TUser[] = [
+    {
+        id: "u001",
+        name: "Edipo",
+        email: "edipo@teste.com",
+        password: "123",
+        created_at: ""
+    },
+    {
+        id: "u002",
+        name: "Pamela",
+        email: "pamela@teste.com",
+        password: "456",
+        created_at: ""  
+    },
+    {
+        id: "u003",
+        name: "Aurora",
+        email: "aurora@teste.com",
+        password: "987",
+        created_at: ""  
+    }
+]
 
 //Refatore o mock de products no database.ts
 export const products: TProduct[] = [
     {
-        id: "01",
+        id: "p001",
         name: "goiaba",
         price: 5.00,
-        category: ProductCategory.FRUITS
+        category: ProductCategory.FRUITS,
+        description: "Fruta fresca",
+        image_url: "https://picsum.photos/200"
     },
     {
-        id: "02",
+        id: "p002",
         name: "alface",
         price: 1.00,
-        category: ProductCategory.GREENERIES
+        category: ProductCategory.GREENERIES,
+        description:"Verdura fresca",
+        image_url: "https://picsum.photos/200"
+    },
+    {
+        id: "p003",
+        name: "manga",
+        price: 5.00,
+        category: ProductCategory.FRUITS,
+        description:"Fruta fresca",
+        image_url: "https://picsum.photos/200"
+    },
+    {
+        id: "p004",
+        name: "rucúla",
+        price: 1.00,
+        category: ProductCategory.GREENERIES,
+        description:"Verdura fresca",
+        image_url: "https://picsum.photos/200"
+    },
+    {
+        id: "p005",
+        name: "uva",
+        price: 3.00,
+        category: ProductCategory.FRUITS,
+        description:"Fruta fresca",
+        image_url: "https://picsum.photos/200"
     }
 ]
 
 export const purchases: TPurchase[] = [
     {
-        userId: "Edipo",
-        productId: "01",
-        quantity: 2,
-        totalPrice: 10.00,
+        id: "c001",
+        buyer: "u001",
+        total_price: 15.00,
+        created_at: "",
+        paid: 0,
     },
     {
-        userId: "Pamela",
-        productId: "02",
-        quantity: 4,
-        totalPrice: 4.00
+        id: "c002",
+        buyer: "u002",
+        total_price: 10.00,
+        created_at: "",
+        paid: 0,
     }
 ]
 
@@ -48,8 +91,8 @@ export const purchases: TPurchase[] = [
 // input: três parâmetros (id, email e password)
 // output: frase de sucesso ("Cadastro realizado com sucesso")
 // exemplo de chamada: createUser("u003", "beltrano@email.com", "beltrano99")
-export function createUser(id: string, email: string, password: string) {
-    const newUser : TUser = {id, email, password}
+export function createUser(id: string, name: string, email: string, password: string, created_at: string) {
+    const newUser : TUser = {id, name, email, password, created_at}
     users.push(newUser)
     console.log("Usuário cadastrado com sucesso");
 }
@@ -71,8 +114,8 @@ export function getAllUsers (users: TUser[]) : TUser[] {
 // output: frase de sucesso ("Produto criado com sucesso")
 // exemplo de chamada: createProduct("p004", "Monitor HD", 800, PRODUCT_CATEGORY.ELECTRONICS)
 
-export function createProduct(id: string, name: string, price: number, category: ProductCategory ) {
-        const newProduct : TProduct = {id, name, price, category}
+export function createProduct(id: string, name: string, price: number, category: ProductCategory, description: string, image_url: string ) {
+        const newProduct : TProduct = {id, name, price, category, description, image_url}
         products.push(newProduct)
         console.log("Produto cadastrado com sucesso");
 }
@@ -116,8 +159,8 @@ export function queryProductsByName (q: string) : TProduct[] | undefined {
 // input: quatro parâmetros (userId, productId, quantity e totalPrice)
 // output: frase de sucesso ("Compra realizada com sucesso")
 // exemplo de chamada: createPurchase("u003", "p004", 2, 1600)
-export function createPurchase (userId: string, productId: string, quantity: number, totalPrice: number) {
-    const newPurchase : TPurchase = {userId, productId, quantity, totalPrice}
+export function createPurchase (id: string, buyer: string, total_price: number, created_at: string, paid: number) {
+    const newPurchase : TPurchase = {id, buyer, total_price, created_at, paid}
     purchases.push(newPurchase)
     console.log("Compra realizada com sucesso");
 }
@@ -126,8 +169,8 @@ export function createPurchase (userId: string, productId: string, quantity: num
 // input: userIdToSearch
 // output: lista atualizada de compras nas quais o userId delas são do userIdToSearch
 // exemplo de chamada: getAllPurchasesFromUserId("u003")
-export function getAllPurchasesFromUserId (userIdToSearch: string) : TPurchase[] | undefined {
+export function getAllPurchasesFromUserId (buyerToSearch: string) : TPurchase[] | undefined {
     return purchases.filter((purchase) => {
-        return purchase.userId === userIdToSearch
+        return purchase.buyer === buyerToSearch
     })
 }
